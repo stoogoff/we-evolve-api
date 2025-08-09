@@ -21,8 +21,7 @@ const start = async () => {
 	fastify.register(website, { prefix: 'stoogoff' })
 
 	try {
-		console.log(fastify.printRoutes())
-		await fastify.listen({ port: config.port })
+		await fastify.listen({ port: config.port, host: '0.0.0.0' })
 	}
 	catch (err) {
 		fastify.log.error(err)
