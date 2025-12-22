@@ -1,0 +1,11 @@
+<% layout('../layouts/main') %>
+
+<main>
+	<p>I’ve written a number of short stories and novellas which I’ve self-published. All are available from my <a href="http://author.to/stoo-goff">Amazon</a> page.</p>
+</main>
+
+<ul>
+<% it.books.forEach(book => { %>
+	<li><a href="<%= book.slug %>"><%= book.title %></a></li>
+<% }) %>
+</ul>

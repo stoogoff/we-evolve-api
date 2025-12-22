@@ -1,0 +1,21 @@
+{
+	"tasks": {
+		"dev": "deno run --watch --allow-net --allow-read --allow-env --env-file src/server.ts",
+		"format": "deno fmt && deno lint"
+	},
+	"fmt": {
+		"bracePosition": "sameLineUnlessHanging",
+		"lineWidth": 80,
+		"semiColons": false,
+		"singleBodyPosition": "nextLine",
+		"singleQuote": true,
+		"spaceAround": false,
+		"spaceSurroundingProperties": false,
+		"useBraces": "always",
+		"useTabs": true
+	},
+	"imports": {
+		"@bgub/eta": "jsr:@bgub/eta@^4.4.1",
+		"@oak/oak": "jsr:@oak/oak@^17.2.0"
+	}
+}
