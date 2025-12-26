@@ -5,7 +5,7 @@ import { templateRenderer } from './templating.ts'
 
 import { HomeController } from './modules/home/controller.ts'
 import { BooksController, BooksService } from './modules/books/index.ts'
-import { Repository, View } from './mvc/index.ts'
+import { router, Repository, View } from './mvc/index.ts'
 
 const repo = new Repository({
 	dbHost: Deno.env.get('DATABASE_URL'),
@@ -13,14 +13,12 @@ const repo = new Repository({
 	dbPassword: Deno.env.get('DATABASE_PASSWORD'),
 })
 
-const router = new Router()
+console.log(Deno.version.typescript)
+
 const view = new View(`${Deno.cwd()}/${PATH.PAGES}`, BASE_MODEL)
 const books = new BooksController(new BooksService(repo), view)
 const home = new HomeController(view)
 
-
-home.registerRoutes(router)
-books.registerRoutes(router)
 
 const app = new Application()
 

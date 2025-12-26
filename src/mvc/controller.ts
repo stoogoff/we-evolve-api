@@ -1,13 +1,13 @@
 
-import { Context, Router } from '@oak/oak'
+import { Context } from '@oak/oak'
 import { View } from './view.ts'
+
+const controllers = new Map()
 
 export abstract class Controller {
 	protected context: Context;
 
 	constructor(private view: View) {}
-
-	abstract registerRoutes(router: Router): void
 
 	get isJsonRequest() {
 		return this.requestHasMimeType('application/json')
