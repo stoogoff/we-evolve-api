@@ -1,4 +1,5 @@
-import { encodeBase64 } from "jsr:@std/encoding/base64";
+import { encodeBase64 } from 'jsr:@std/encoding/base64'
+import { NotFoundError } from './errors.ts'
 
 export interface DatabaseCredentials {
 	dbHost: string;
@@ -26,13 +27,19 @@ export class Repository {
 			items = items.slice(0, limit)
 		}
 
+		// @ts-ignore
 		return items.map(({ doc }) => doc)
 	}
 
 	async getByTypeId(prefix: string, id: string) {
 		const response = await this.fetch(`/${prefix}:${id}`)
+		const item = await response.json()
 
-		return await response.json()
+		if('error' in item) {
+			throw new NotFoundError(`item '${prefix}:${id}' not found`)
+		}
+
+		return item
 	}
 
 	private async fetch(url: string) {

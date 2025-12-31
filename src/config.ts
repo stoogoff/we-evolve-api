@@ -6,6 +6,8 @@ export const PATH = {
 }
 
 export const BASE_MODEL = {
+	title: '',
+
 	pageTitle: function(): string {
 		if(this.title) {
 			return `${this.title} | Stoo Goff`

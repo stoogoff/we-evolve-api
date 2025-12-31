@@ -1,9 +1,8 @@
 
 import { encodeBase64 } from 'jsr:@std/encoding/base64'
 import { Context, Router } from '@oak/oak'
-import { controller, route, Controller, View } from '../../mvc/index.ts'
+import { route, Controller, View } from '../../mvc/index.ts'
 import { BooksService } from './service.ts'
-import { Book } from './models.ts'
 
 export class BooksController extends Controller {
 	constructor(private service: BooksService, view: View) {

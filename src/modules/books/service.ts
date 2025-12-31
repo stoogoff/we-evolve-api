@@ -1,8 +1,8 @@
 import { Repository, Service } from "../../mvc/index.ts";
-import { Book, ExpectedJson } from "./models.ts";
+import { Book } from "./models.ts";
 
-export class BooksService extends Service<Book, ExpectedJson> {
+export class BooksService extends Service<Book> {
 	constructor(repo: Repository) {
-		super(repo, 'book', Book.fromJson)
+		super(repo, 'book')
 	}
 }
