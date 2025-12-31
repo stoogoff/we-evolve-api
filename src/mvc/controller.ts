@@ -1,6 +1,7 @@
 
 import { Context } from '@oak/oak'
 import { HttpError, ServerError } from './errors.ts'
+import { PageModel } from './models.ts'
 import { View } from './view.ts'
 
 const controllers = new Map()
@@ -33,17 +34,17 @@ export abstract class Controller {
 	// TODO this needs to be able to return just the relevant data for an api call
 	// which should not include all of the base model (e.g. title), just the data
 
-	async render(template: string, model: Record<string, unknown>): Promise<string> {
+	async render(template: string, model: PageModel): Promise<string> {
 		if(this.context && this.isJsonRequest) {
 			this.context.response.headers.set('Content-Type', 'application/json')
 
-			return JSON.stringify(model)
+			return JSON.stringify(model.toJson())
 		}
 
 		return await this.view.render(template, model)
 	}
 
-	async renderError(error) {
+	async renderError(error: any) {
 		let httpError: HttpError
 
 		if(error instanceof HttpError) {
@@ -53,14 +54,15 @@ export abstract class Controller {
 			httpError = new ServerError()
 		}
 
+		//@ts-ignore
 		this.context.response.status = httpError.status
 			
 		if(this.isJsonRequest) {
-			this.context.response.headers.set('Content-Type', 'application/json')
+			this.context?.response.headers.set('Content-Type', 'application/json')
 
 			return JSON.stringify(httpError.toJson())
 		}
 
-		return await this.view.render('404', httpError)
+		return await this.view.render('404', new PageModel({}, httpError))
 	}
 }

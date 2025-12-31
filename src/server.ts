@@ -1,10 +1,10 @@
 
 import { Application, Context, Router } from '@oak/oak'
-import { PORT, PATH, BASE_MODEL } from './config.ts'
+import { PORT, PATH, BASE_MODEL, IMAGE_URL } from './config.ts'
 
 import { HomeController } from './modules/home/controller.ts'
 import { BooksController, BooksService } from './modules/books/index.ts'
-import { router, staticFiles, Repository, View } from './mvc/index.ts'
+import { router, staticFiles, Repository, SiteModel, View } from './mvc/index.ts'
 
 const repo = new Repository({
 	dbHost: Deno.env.get('DATABASE_URL')!,
@@ -14,7 +14,15 @@ const repo = new Repository({
 
 console.log(Deno.version.typescript)
 
-const view = new View(`${Deno.cwd()}/${PATH.PAGES}`, BASE_MODEL)
+const site = new SiteModel({
+	url: 'https://we-evolve.co.uk',
+	title: 'we evolve',
+	description: 'Publisher of the Aegean, WILD, and Action Potential role-playing games.',
+	image: `https://cdn.we-evolve.co.uk/img/home/banner-aegean.png`,
+	type: 'website'
+}, IMAGE_URL)
+
+const view = new View(`${Deno.cwd()}/${PATH.PAGES}`, site)
 const books = new BooksController(new BooksService(repo), view)
 const home = new HomeController(view)
 

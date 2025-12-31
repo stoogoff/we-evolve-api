@@ -20,19 +20,19 @@ export class HttpError extends Error {
 }
 
 export class NotFoundError extends HttpError {
-	constructor(message: string | undefined) {
+	constructor(message: string | undefined = undefined) {
 		super(404, message ?? 'Not found')
 	}
 }
 
 export class BadRequestError extends HttpError {
-	constructor(message: string | undefined) {
+	constructor(message: string | undefined = undefined) {
 		super(400, message ?? 'Bad request')
 	}
 }
 
 export class ServerError extends HttpError {
-	constructor(message: string | undefined) {
+	constructor(message: string | undefined = undefined) {
 		super(500, message ?? 'Server error')
 	}
 }

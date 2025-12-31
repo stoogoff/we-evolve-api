@@ -4,10 +4,10 @@
 	<article itemscope itemtype="https://schema.org/Book">
 		<tag-list :tags="book.tags" />
 		<header>
-			<h1 itemprop="name"><%= it.book.title %></h1>
-			<% if(it.book.series) { %>
+			<h1 itemprop="name"><%= it.data.title %></h1>
+			<% if(it.data.series) { %>
 			<p class="uppercase text-sm">
-				Part <%= it.book.part %> of the <strong><%= it.book.series %></strong> series.
+				Part <%= it.data.part %> of the <strong><%= it.data.series %></strong> series.
 			</p>
 			<% } %>
 		</header>
@@ -15,20 +15,20 @@
 			<publish-date :item="book" />
 			<div class="overflow-hidden">
 				<%~ include('../components/article-image', {
-					image: it.book.image,
+					image: it.data.image,
 				}) %>
 				<%~ include('../components/prose-block', {
-					summary: it.book.summary,
-					content: it.book.content,
+					summary: it.data.summary,
+					content: it.data.content,
 				}) %>
 			</div>
-			<% if(it.book.urls) { %>
+			<% if(it.data.urls) { %>
 			<aside class="border-t border-gray-200 mt-6 pt-4 px-2">
 				<p class="text-xl">More information, including purchasing options, is available at the following sites:</p>
 				<ul class="bullet">
-					<% Object.keys(it.book.urls).forEach(key => { %>
+					<% Object.keys(it.data.urls).forEach(key => { %>
 					<li>
-						<a href="<%= it.book.urls[key] %>" class="link" itemprop="url"><%= key %></a>
+						<a href="<%= it.data.urls[key] %>" class="link" itemprop="url"><%= key %></a>
 					</li>
 					<% }) %>
 				</ul>

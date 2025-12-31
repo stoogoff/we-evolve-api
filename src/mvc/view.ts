@@ -1,11 +1,12 @@
 
 import { Eta } from '@bgub/eta'
 import { Context } from '@oak/oak'
+import { PageModel, SiteModel } from './models.ts'
 
 export class View {
 	private renderer: Eta
 
-	constructor(private templatePath: string, private baseModel: Record<string, unknown>) {
+	constructor(private templatePath: string, private siteModel: SiteModel) {
 		this.renderer = new Eta({
 			views: templatePath,
 			cache: false,
@@ -13,8 +14,8 @@ export class View {
 		})
 	}
 
-	async render(path: string, data: Record<string, any>) {
-		return await this.renderer.render(path, { ...this.baseModel, ...data })
+	async render(path: string, data: PageModel) {
+		return await this.renderer.render(path, this.siteModel.merge(data).toRaw())
 	}
 
 	async renderContext(ctx: Context) {
@@ -31,6 +32,6 @@ export class View {
 	}
 
 	async renderTemplate(path: string) {
-		return await this.renderer.render(path, this.baseModel)
+		return await this.renderer.render(path, this.siteModel)
 	}
 }

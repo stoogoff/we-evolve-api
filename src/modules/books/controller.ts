@@ -1,7 +1,7 @@
 
 import { encodeBase64 } from 'jsr:@std/encoding/base64'
 import { Context, Router } from '@oak/oak'
-import { route, Controller, View } from '../../mvc/index.ts'
+import { route, Controller, PageModel, View } from '../../mvc/index.ts'
 import { BooksService } from './service.ts'
 
 export class BooksController extends Controller {
@@ -13,21 +13,24 @@ export class BooksController extends Controller {
 	async index() {
 		const books = await this.service.all()
 
-		return await this.render('books/index', {
-			title: 'Books',
+		return await this.render('books/index', new PageModel({
+				title: 'Books | ',
+			},
 			books,
-		})
+		))
 	}
 
 	@route('/books/:book')
 	async book() {
 		try {
-			const book = await this.service.byId(this.context.params.book)
+			//@ts-ignore
+			const book = await this.service.byId(this.context?.params.book)
 
-			return await this.render('books/book', {
-				title: book.title,
+			return await this.render('books/book', new PageModel({
+					title: book.title + ' | ',
+				},
 				book,
-			})
+			))
 		}
 		catch(error) {
 			return await this.renderError(error)
