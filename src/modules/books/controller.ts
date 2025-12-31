@@ -21,11 +21,16 @@ export class BooksController extends Controller {
 
 	@route('/books/:book')
 	async book() {
-		const book = await this.service.byId(this.context.params.book)
+		try {
+			const book = await this.service.byId(this.context.params.book)
 
-		return await this.render('books/book', {
-			title: book.title,
-			book,
-		})
+			return await this.render('books/book', {
+				title: book.title,
+				book,
+			})
+		}
+		catch(error) {
+			return await this.renderError(error)
+		}
 	}
 }

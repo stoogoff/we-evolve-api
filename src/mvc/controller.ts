@@ -1,5 +1,6 @@
 
 import { Context } from '@oak/oak'
+import { HttpError, ServerError } from './errors.ts'
 import { View } from './view.ts'
 
 const controllers = new Map()
@@ -29,11 +30,8 @@ export abstract class Controller {
 		return (acceptHeader ?? []).filter(requested => requested === mime).length > 0
 	}
 
-	// TODO this needs to get the context
-	// and use the request header to return a correct response type
-	// if request.headers['Accepts'] === 'application/json' // OR 'application/xml'
-	// it should return the model as JSON (possibly with a default wrapper)
-	// should possibly work for CSV and XML as well
+	// TODO this needs to be able to return just the relevant data for an api call
+	// which should not include all of the base model (e.g. title), just the data
 
 	async render(template: string, model: Record<string, unknown>): Promise<string> {
 		if(this.context && this.isJsonRequest) {
@@ -43,5 +41,26 @@ export abstract class Controller {
 		}
 
 		return await this.view.render(template, model)
+	}
+
+	async renderError(error) {
+		let httpError: HttpError
+
+		if(error instanceof HttpError) {
+			httpError = error as HttpError
+		}
+		else {
+			httpError = new ServerError()
+		}
+
+		this.context.response.status = httpError.status
+			
+		if(this.isJsonRequest) {
+			this.context.response.headers.set('Content-Type', 'application/json')
+
+			return JSON.stringify(httpError.toJson())
+		}
+
+		return await this.view.render('404', httpError)
 	}
 }

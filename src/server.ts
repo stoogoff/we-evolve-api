@@ -29,7 +29,7 @@ app.use(staticFiles(PATH.STATIC))
 
 // catch all static pages which don't need a controller
 app.use(async (ctx: Context) => {
-	ctx.response.body = await view.renderTemplate(ctx)
+	ctx.response.body = await view.renderContext(ctx)
 })
 
 app.addEventListener('listen', ({ port }) => console.log(`Listening on port: ${port}`))

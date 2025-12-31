@@ -17,10 +17,20 @@ export class View {
 		return await this.renderer.render(path, { ...this.baseModel, ...data })
 	}
 
-	async renderTemplate (ctx: Context) {
+	async renderContext(ctx: Context) {
 		const file = ctx.request.url.pathname.replace(/^\//, '')
 
-		// this may need some way to pass in a model
-		return await this.renderer.render(file || 'index', this.baseModel)
+		try {
+			return await this.renderTemplate(file || 'index')
+		}
+		catch(error) {
+			ctx.response.status = 404
+
+			return await this.renderTemplate('404')
+		}
+	}
+
+	async renderTemplate(path: string) {
+		return await this.renderer.render(path, this.baseModel)
 	}
 }

@@ -3,7 +3,7 @@ import { Context, Next } from '@oak/oak'
 
 export const staticFiles = (staticPath: string)  => {
 	return async (ctx: Context, next: Next) => {
-		if(/\.(css|js|jpg|ico|png|gif|svg|otf|webmanifest)$/.test(ctx.request.url.pathname)) {
+		if(/\.(pdf|zip|txt|css|js|jpg|ico|png|gif|svg|otf|webmanifest)$/.test(ctx.request.url.pathname)) {
 			const opts = {
 				root: staticPath,
 				path: ctx.request.url.pathname,

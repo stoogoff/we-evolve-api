@@ -1,9 +1,21 @@
 
 export class HttpError extends Error {
-	constructor(private status: number, message: string) {
+	constructor(private _status: number, message: string) {
 		super(message)
 
-		this.name = typeof this
+		this.name = this.constructor.name
+	}
+
+	get status() {
+		return this._status
+	}
+
+	toJson() {
+		return {
+			status: this._status,
+			name: this.name,
+			message: this.message,
+		}
 	}
 }
 
