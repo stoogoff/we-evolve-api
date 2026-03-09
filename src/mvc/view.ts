@@ -6,7 +6,7 @@ import { PageModel, SiteModel } from './models.ts'
 export class View {
 	private renderer: Eta
 
-	constructor(private templatePath: string, private siteModel: SiteModel) {
+	constructor(private readonly templatePath: string, private readonly siteModel: SiteModel) {
 		this.renderer = new Eta({
 			views: templatePath,
 			cache: false,
@@ -15,7 +15,11 @@ export class View {
 	}
 
 	async render(path: string, data: PageModel) {
-		return await this.renderer.render(path, this.siteModel.merge(data).toRaw())
+		this.siteModel.merge(data)
+
+		const raw = await this.siteModel.toRaw()
+
+		return await this.renderer.render(path, raw)
 	}
 
 	async renderContext(ctx: Context) {
@@ -24,7 +28,7 @@ export class View {
 		try {
 			return await this.renderTemplate(file || 'index')
 		}
-		catch(error) {
+		catch(_error) {
 			ctx.response.status = 404
 
 			return await this.renderTemplate('404')

@@ -4,12 +4,10 @@ import { HttpError, ServerError } from './errors.ts'
 import { PageModel } from './models.ts'
 import { View } from './view.ts'
 
-const controllers = new Map()
-
 export abstract class Controller {
 	protected context: Context | undefined;
 
-	constructor(private view: View) {}
+	constructor(private readonly view: View) {}
 
 	initialise(ctx: Context) {
 		this.context = ctx
@@ -23,6 +21,30 @@ export abstract class Controller {
 		return this.requestHasMimeType('application/xml')
 	}
 
+	async bodyData() {
+		if(!this.context) {
+			throw new ServerError('Context not set')
+		}
+
+		const type = this.context.request.body.type() ?? 'none'
+
+		switch(type) {
+			case 'form': {
+				const form = await this.context.request.body.formData()
+				const result = {}
+
+				form.keys().forEach(key => result[key] = form.get(key))
+
+				return result
+			}
+
+			case 'json':
+				return await this.context.request.body.json()
+		}
+
+		return null
+	}
+
 	requestHasMimeType(mime: string): boolean {
 		if(!this.context) return false
 
@@ -31,17 +53,36 @@ export abstract class Controller {
 		return (acceptHeader ?? []).filter(requested => requested === mime).length > 0
 	}
 
-	// TODO this needs to be able to return just the relevant data for an api call
-	// which should not include all of the base model (e.g. title), just the data
-
-	async render(template: string, model: PageModel): Promise<string> {
-		if(this.context && this.isJsonRequest) {
-			this.context.response.headers.set('Content-Type', 'application/json')
-
-			return JSON.stringify(model.toJson())
+	renderData(model: PageModel): string {
+		if(!this.context) {
+			throw new ServerError('Context not set')
 		}
 
-		return await this.view.render(template, model)
+		this.context.response.headers.set('Content-Type', 'application/json')
+
+		return JSON.stringify(model.toJson())
+	}
+
+	async render(template: string, model: PageModel): Promise<string> {
+		if(!this.context) {
+			throw new ServerError('Context not set')
+		}
+
+		if(this.isJsonRequest) {
+			return this.renderData(model)
+		}
+
+		const urlModel = new PageModel({
+			url: this.context.request.url
+		})
+
+		return await this.view.render(template, model.merge(urlModel) as PageModel)
+	}
+
+	renderStatus(status: number, message: string | undefined) {
+		this.context!.response.status = status
+
+		return message ?? ''
 	}
 
 	async renderError(error: any) {
@@ -54,15 +95,14 @@ export abstract class Controller {
 			httpError = new ServerError()
 		}
 
-		//@ts-ignore
-		this.context.response.status = httpError.status
-			
+		this.context!.response.status = httpError.status
+
 		if(this.isJsonRequest) {
 			this.context?.response.headers.set('Content-Type', 'application/json')
 
 			return JSON.stringify(httpError.toJson())
 		}
 
-		return await this.view.render('404', new PageModel({}, httpError))
+		return await this.view.render(httpError.status.toString(), new PageModel({}, httpError))
 	}
 }

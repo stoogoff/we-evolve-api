@@ -1,39 +1,13 @@
 
-/*
-
-META DATA
-
-title - this needs to be combinatory e.g. we-evolve, Home | we-evolve, Games | we-evolve
-url
-description
-type ?? 'website'
-image
-
-SITE DATA
-
-title
-primary navigation
-footer navigation
-
-maybe this is two classes: MetadataModel, PageModel
-these then get combined by the view
-
-MetadataModel would have the meta data and navigation
-PageModel would have title and page specific content
-
-or maybe all of this should just be in the template??
-
-*/
-
 export interface SiteMetadata {
 	title?: string;
 	description?: string;
-	url?: string;
+	url?: URL;
 	image?: string;
 	type?: string;
 }
 
-class MetadataModel {
+export class MetadataModel {
 	private page: MetadataModel | undefined
 
 	constructor(private metadata: Partial<SiteMetadata>) {}
@@ -47,7 +21,15 @@ class MetadataModel {
 	}
 
 	get url(): string {
-		return this.overrideProperty('url')
+		if(this.page && this.page.url) {
+			return this.page.url.toString()
+		}
+
+		if(this.metadata.url) {
+			return this.metadata.url.toString()
+		}
+
+		return ''
 	}
 
 	get image(): string {
@@ -64,7 +46,7 @@ class MetadataModel {
 		return this
 	}
 
-	toRaw() {
+	async toRaw(): Promise<Record<string, any>> {
 		const model = {
 			title: this.title,
 			description: this.description,
@@ -80,6 +62,7 @@ class MetadataModel {
 	}
 
 	private overrideProperty(property: keyof SiteMetadata): string {
+		//@ts-ignore
 		return this.page && this.page[property] ? this.page[property] : this.metadata[property] ?? ''
 	}
 }
@@ -93,18 +76,27 @@ export class SiteModel extends MetadataModel {
 		return this.baseImagePath + path
 	}
 
-	override toRaw() {
-		const model = super.toRaw()
+	isActiveNav(path: string): boolean {
+		const url = new URL(path, this.url)
 
-		//@ts-ignore
-		model.imagePath = this.imagePath.bind(this)
+		return url.href === this.url
+	}
+
+	override async toRaw(): Promise<Record<string, unknown>> {
+		const model = await super.toRaw()
+		const methods = ['imagePath', 'isActiveNav']
+
+		methods.forEach(method => {
+			// @ts-ignore
+			model[method] = this[method].bind(this)
+		})
 
 		return model
 	}
 }
 
 export class PageModel extends MetadataModel {
-	constructor(metadata: Partial<SiteMetadata>, public data: any | any[] | undefined = undefined) {
+	constructor(metadata: Partial<SiteMetadata>, private data: unknown | unknown[] | undefined = undefined) {
 		super(metadata)
 	}
 
